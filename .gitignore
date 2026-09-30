@@ -1,0 +1,12 @@
+node_modules/
+.next/
+.env*.local
+.env
+coverage/
+test-results/
+playwright-report/
+.local-storage/
+*.tsbuildinfo
+next-env.d.ts
+supabase/.temp/
+supabase/.branches/

@@ -1,0 +1,52 @@
+{
+  "name": "revenue-intelligence",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --project unit",
+    "test:integration": "vitest run --project integration",
+    "test:all": "vitest run",
+    "test:e2e": "playwright test",
+    "db:reset": "supabase db reset",
+    "seed:demo": "tsx scripts/seed-demo.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.131.0",
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.117.2",
+    "decimal.js": "^10.6.0",
+    "exceljs": "^4.4.0",
+    "next": "^16.3.8",
+    "papaparse": "^5.7.0",
+    "postgres": "^3.4.9",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "server-only": "^0.0.1",
+    "unpdf": "^1.8.1",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^22.20.4",
+    "@types/papaparse": "^5.5.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "postcss": "^8.5.28",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.15",
+    "typescript": "5.9",
+    "vitest": "^5.0.3"
+  },
+  "overrides": {
+    "uuid": "^11.1.1"
+  }
+}
