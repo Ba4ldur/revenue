@@ -15,8 +15,9 @@
 Tudo: app Next.js, schema, domínio, serviços, testes, seed, documentação operacional.
 
 ## 3. Estrutura
+(Desde 2026-10-01 na raiz de `Ba4ldur/revenue` — ADR-031.)
 ```
-revenue-intelligence/
+./
   MASTER_SPEC_v1.0.md  BACKLOG.md  ROADMAP.md
   docs/                      análise, ADRs, plano, relatórios de fase
   supabase/migrations/       schema app, RLS, triggers, storage

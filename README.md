@@ -1,7 +1,8 @@
 # Revenue Intelligence (nome provisório) — MVP 1
 
 Camada independente de Revenue Assurance: verifica se **contrato → execução → faturamento** estão
-coerentes e abre divergências auditáveis. Fonte de verdade: [`MASTER_SPEC_v1.0.md`](MASTER_SPEC_v1.0.md).
+coerentes e abre divergências auditáveis. Repositório oficial: https://github.com/Ba4ldur/revenue.
+Fonte de verdade: [`MASTER_SPEC_v1.0.md`](MASTER_SPEC_v1.0.md).
 
 | Documento | Conteúdo |
 |---|---|
@@ -41,6 +42,6 @@ npm run typecheck
 ```
 
 ## Deploy (não realizado)
-Vercel com Root Directory `revenue-intelligence`; `DATABASE_URL` apontando para o pooler do Supabase em
+Vercel com o projeto na raiz do repositório `Ba4ldur/revenue`; `DATABASE_URL` apontando para o pooler do Supabase em
 modo transação (porta 6543); aplicar migrações com `supabase db push`. Ver riscos em `docs/PHASE_REPORTS.md`
 (limite de corpo de requisição da Vercel para uploads, LGPD do provedor de IA).

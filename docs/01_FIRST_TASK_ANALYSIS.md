@@ -11,6 +11,9 @@ estão separados explicitamente.
 
 ## 1. Leitura integral
 
+> Nota (2026-10-01): o projeto foi migrado para a raiz do repositório oficial `Ba4ldur/revenue` (ADR-031).
+> O texto abaixo descreve a situação original e é mantido como histórico.
+
 O MASTER_SPEC v1.0 foi lido integralmente. Ele **não existia** no repositório; foi
 persistido em `revenue-intelligence/MASTER_SPEC_v1.0.md` a partir do texto fornecido.
 

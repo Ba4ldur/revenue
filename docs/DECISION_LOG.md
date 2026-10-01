@@ -6,7 +6,7 @@ Todas com data 2026-09-30 e status **Aceita** salvo indicação. Decisões marca
 
 ---
 
-### ADR-000 · Localização do projeto
+### ADR-000 · Localização do projeto — **Substituída pelo ADR-031**
 - **Problema**: o repositório `criador-de-sites` contém apenas imagens e um kit `.claude`; não há
   `MASTER_SPEC_v1.0.md` nem código do produto.
 - **Decisão**: criar o produto em `revenue-intelligence/` e persistir o spec ali.
@@ -203,3 +203,12 @@ Todas com data 2026-09-30 e status **Aceita** salvo indicação. Decisões marca
   Não habilitei o parâmetro de fallback de modelo do lado do servidor.
 - **Justificativa**: rastreabilidade do modelo que produziu cada proposta (o modelo servido é gravado na
   RuleExtractionRun). Habilitar fallback é decisão simples e reversível — registrar se desejado.
+
+### ADR-031 · Repositório oficial próprio
+- **Data**: 2026-10-01 · **Status**: Aceita · substitui o ADR-000.
+- **Decisão**: o projeto passa a viver na raiz de `Ba4ldur/revenue`. O histórico foi migrado com
+  `git subtree split --prefix=revenue-intelligence` a partir de `Ba4ldur/criador-de-sites`
+  (branch `claude/happy-cori-opit1g`): os 6 commits do produto foram preservados com os caminhos já na
+  raiz; fotos, kit `.claude` e demais arquivos do repositório anterior não foram trazidos.
+- **Consequências**: deploy na Vercel sem Root Directory customizado. Referências a
+  `revenue-intelligence/` em documentos anteriores a esta data são históricas.
