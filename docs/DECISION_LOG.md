@@ -178,3 +178,28 @@ Todas com data 2026-09-30 e status **Aceita** salvo indicação. Decisões marca
   normalização de valores importados exige Decimal.
 - **Decisão**: implementar `domain/money` e `domain/competence` junto da Fase 15.
 - **Consequências**: nenhuma; antecipa núcleo, não UI.
+
+### ADR-026 · Storage local removido
+- **Decisão**: não há driver de storage em disco. Desenvolvimento e testes usam o Storage do Supabase local
+  (`supabase start`). Substitui a menção a "implementação local" no ADR-023.
+- **Justificativa**: um único caminho de código; os testes exercitam o storage real.
+
+### ADR-027 · Mensagem única para "inexistente" e "sem acesso"
+- **Decisão**: páginas de detalhe exibem a mesma mensagem quando o registro não existe ou pertence a outra
+  organização; o download responde 404 nos dois casos.
+- **Justificativa**: não revelar a existência de ids de outro tenant (proteção horizontal).
+
+### ADR-028 · Feedback pós-transição por redirecionamento
+- **Decisão**: ações que mudam o estado de forma que o formulário deixa de existir (classificar finding,
+  processar import) redirecionam com parâmetro (`?ok=`, `?processed=1`) e a página exibe aviso persistente.
+
+### ADR-029 · Dados de demonstração sem CNPJ real
+- **Decisão**: seed e testes usam CNPJs sintéticos com DV válido gerados a partir de bases arbitrárias;
+  nunca CNPJs conhecidos de empresas reais.
+
+### ADR-030 · Extração por IA sem fallback automático de modelo
+- **Decisão**: o provedor Anthropic usa `claude-opus-5-5` (configurável), `messages.parse` com schema Zod e
+  `effort: high`; em recusa (`stop_reason: refusal`) a extração falha e o usuário cadastra manualmente.
+  Não habilitei o parâmetro de fallback de modelo do lado do servidor.
+- **Justificativa**: rastreabilidade do modelo que produziu cada proposta (o modelo servido é gravado na
+  RuleExtractionRun). Habilitar fallback é decisão simples e reversível — registrar se desejado.
