@@ -25,7 +25,7 @@ export async function getDashboard(ctx: OrgContext, opts: { from?: string | null
       from (${current}) f group by f.status order by f.status`;
     const byType = await tx`
       select f.finding_type, count(*)::int as n, coalesce(sum(f.difference_amount), 0)::text as amount
-      from (${current}) f where f.status in ('OPEN', 'UNDER_REVIEW', 'CONFIRMED') group by f.finding_type order by amount::numeric desc`;
+      from (${current}) f where f.status in ('OPEN', 'UNDER_REVIEW', 'CONFIRMED') group by f.finding_type order by sum(f.difference_amount) desc`;
     const top = await tx`
       select f.id, f.finding_type, f.status, f.competence, f.difference_amount, k.contract_number, coalesce(c.trade_name, c.legal_name) as customer_name
       from (${current}) f join app.contracts k on k.id = f.contract_id join app.customers c on c.id = f.customer_id

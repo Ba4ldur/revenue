@@ -3,6 +3,7 @@ import {
   ENGINE_BLOCKING_RULE_TYPES,
   ENGINE_SUPPORTED_RULE_TYPES,
   INFORMATIONAL_RULE_TYPES,
+  UNIT_LABELS,
   type RuleType,
 } from "../contracts/rules";
 import {
@@ -284,7 +285,7 @@ export function calculateExpectedRevenue(input: ExpectedRevenueInput): EngineOut
     components.push({
       componentType: "EXCESS",
       sortOrder: order++,
-      description: `Excedente de ${unit}: uso ${usage.toFixed()} − franquia ${includedQty.toFixed()}`,
+      description: `Excedente (${UNIT_LABELS[unit] ?? unit}): uso ${usage.toFixed()} − franquia ${includedQty.toFixed()}`,
       quantity: toScale6String(excess),
       unit,
       unitPrice: toScale6String(unitPrice),

@@ -91,3 +91,11 @@ export function formatPercentFraction(value: string | Decimal, decimals = 2): st
   const s = d.toDecimalPlaces(decimals, Decimal.ROUND_HALF_UP).toFixed();
   return `${s.replace(".", ",")}%`;
 }
+
+/** Preço unitário (até 6 casas) sem perder precisão: "280.000000" → "R$ 280,00"; "0.123456" → "R$ 0,123456". */
+export function formatUnitPrice(value: string | Decimal): string {
+  const d = dec(value);
+  if (d.decimalPlaces() <= 2) return formatBRL(d);
+  const [i, f] = d.abs().toFixed().split(".") as [string, string];
+  return `${d.isNegative() ? "-" : ""}R$ ${i.replace(/\B(?=(\d{3})+(?!\d))/g, ".")},${f}`;
+}

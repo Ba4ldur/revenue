@@ -1,4 +1,4 @@
-import { asCompetence, type Competence } from "@/domain/competence";
+import { asCompetence, formatDateBR, type Competence } from "@/domain/competence";
 import { hashCanonical } from "@/domain/hashing";
 import {
   EXPECTED_REVENUE_ENGINE,
@@ -215,7 +215,7 @@ async function collectEvidence(tx: Tx, orgId: string, expectedEventId: string, e
   for (const b of bills) {
     push({ evidence_type: "BILLING_EVENT", entity_type: "billing_events", entity_id: b.id, source_billing_event_id: b.id,
       source_import_id: b.source_import_id, source_import_row_id: b.source_import_row_id,
-      description: `Faturamento${b.document_number ? " NF " + b.document_number : ""} em ${b.billing_date}: ${formatBRL(b.amount)}` });
+      description: `Faturamento${b.document_number ? " NF " + b.document_number : ""} emitido em ${formatDateBR(b.billing_date)}: ${formatBRL(b.amount)}` });
   }
   push({ evidence_type: "CALCULATION_RUN", entity_type: "calculation_runs", entity_id: expectedRunId, source_calculation_run_id: expectedRunId, description: `Cálculo de receita esperada (${EXPECTED_REVENUE_ENGINE.name})` });
   push({ evidence_type: "CALCULATION_RUN", entity_type: "calculation_runs", entity_id: recRunId, source_calculation_run_id: recRunId, description: `Reconciliação (${RECONCILIATION_ENGINE.name})` });

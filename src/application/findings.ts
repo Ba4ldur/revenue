@@ -5,25 +5,7 @@ import { assertUuid, can, requirePermission, userTx, type OrgContext } from "./c
 import { forbidden, fromDbError, invalid, notFound } from "./errors";
 
 export const FINDING_STATUSES = ["OPEN", "UNDER_REVIEW", "CONFIRMED", "JUSTIFIED", "FALSE_POSITIVE", "DISCARDED", "RECOVERED"] as const;
-export const FINDING_STATUS_LABELS: Record<string, string> = {
-  OPEN: "Aberto",
-  UNDER_REVIEW: "Em revisão",
-  CONFIRMED: "Confirmado",
-  JUSTIFIED: "Justificado",
-  FALSE_POSITIVE: "Falso positivo",
-  DISCARDED: "Descartado",
-  RECOVERED: "Recuperado",
-};
-export const ACTION_LABELS: Record<string, string> = {
-  START_REVIEW: "Iniciar revisão",
-  CONFIRM: "Confirmar divergência",
-  JUSTIFY: "Justificar",
-  MARK_FALSE_POSITIVE: "Marcar falso positivo",
-  DISCARD: "Descartar",
-  MARK_RECOVERED: "Registrar recuperação",
-  REOPEN: "Reabrir",
-  NOTE: "Anotação",
-};
+export { FINDING_STATUS_LABELS, ACTION_LABELS } from "@/domain/findings/labels";
 
 /** Ações disponíveis por status (espelha o trigger app.finding_actions_apply). */
 export function availableActions(status: string, ctx: Pick<OrgContext, "role">, isCurrent: boolean): string[] {
