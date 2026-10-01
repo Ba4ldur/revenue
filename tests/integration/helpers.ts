@@ -10,9 +10,14 @@ import { withSystemScope, withUserScope, type Tx } from "@/infrastructure/db/cli
 
 process.env.DATABASE_URL ??= "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
 
-let admin: postgres.Sql | null = null;
-export function adminSql(): postgres.Sql {
-  admin ??= postgres(process.env.DATABASE_URL!, { max: 2, prepare: false, onnotice: () => {} });
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let admin: postgres.Sql<any> | null = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function adminSql(): postgres.Sql<any> {
+  admin ??= postgres(process.env.DATABASE_URL!, {
+    max: 2, prepare: false, onnotice: () => {},
+    types: { date: { to: 1082, from: [1082], serialize: (x: string) => x, parse: (x: string) => x } },
+  });
   return admin;
 }
 

@@ -81,7 +81,7 @@ create table app.entity_matches (
   organization_id uuid not null references app.organizations (id),
   entity_type text not null default 'CUSTOMER' check (entity_type = 'CUSTOMER'),
   -- chave normalizada da origem: cnpj:<cnpj> | ext:<id> | name:<nome normalizado>
-  source_key text not null check (source_key ~ '^(cnpj|ext|name):.{1,300}$'),
+  source_key text not null check (source_key ~ '^(cnpj|ext|name):.+$' and length(source_key) <= 310),
   source_label text check (source_label is null or length(source_label) <= 300),
   candidate_customer_id uuid,
   status text not null check (status in ('MATCHED', 'PROPOSED', 'UNMATCHED', 'REJECTED')),

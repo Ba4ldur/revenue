@@ -253,7 +253,8 @@ declare
   e record;
   s record;
 begin
-  v_event_id := case when tg_table_name = 'expected_revenue_events' then new.id else new.expected_revenue_event_id end;
+  v_event_id := (case when tg_table_name = 'expected_revenue_events' then to_jsonb(new) ->> 'id'
+                      else to_jsonb(new) ->> 'expected_revenue_event_id' end)::uuid;
   select * into e from app.expected_revenue_events where id = v_event_id;
   select count(*) as n,
          coalesce(sum(amount), 0) as total,
