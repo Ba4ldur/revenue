@@ -75,13 +75,16 @@ Status: ☐ pendente · ◐ em andamento · ☑ concluído (conforme DEFINITION_
 ### ☑ S7.4 Seed demo (Acme / Indústria ABC + cenários adicionais) · P1
 
 ## Débitos técnicos identificados na implementação (2026-10-01)
-- ☐ P1 Upload direto para o Storage via URL assinada (limite de corpo de requisição da Vercel é menor que 20 MB).
+- ☑ P1 Upload direto para o Storage via URL assinada (ADR-032, 2026-10-01).
 - ☐ P1 Revogar vínculo de cliente já MATCHED (anular eventos e permitir rematerialização).
 - ☐ P1 Anular import inteiro (eventos VOIDED) e permitir nova importação do mesmo arquivo.
 - ☐ P1 Fila de jobs para extração/import/reprocessamento longos (hoje síncronos na requisição).
 - ☐ P1 Rate limit de upload e de ações de cálculo por organização.
 - ☐ P2 Paginação/virtualização de listas (> 500 registros).
-- ☐ P2 Validar a extração real com Claude em contratos reais (só o dublê determinístico foi exercitado).
+- ☐ P0 Validar a extração real com Claude em contrato real (`npm run validate:extraction`) — depende de chave no ambiente.
+- ☐ P0 Conferir a regra de CNPJ alfanumérico no documento oficial da Receita Federal (acesso bloqueado no ambiente de desenvolvimento).
+- ☐ P1 Confirmar com contador a política de arredondamento (ADR-003).
+- ☐ P2 Limpeza periódica de objetos de upload não finalizados no Storage.
 
 ## Itens registrados fora do MVP (ver ROADMAP.md)
 - Fila de jobs dedicada (pgmq/Inngest) — P2.

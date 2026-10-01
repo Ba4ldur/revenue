@@ -25,9 +25,3 @@ export function str(fd: FormData, key: string): string | null {
   const v = fd.get(key);
   return typeof v === "string" && v.trim() !== "" ? v.trim() : null;
 }
-
-export async function fileFrom(fd: FormData, key: string): Promise<{ name: string; type: string; bytes: Uint8Array } | null> {
-  const f = fd.get(key);
-  if (!(f instanceof File) || f.size === 0) return null;
-  return { name: f.name, type: f.type, bytes: new Uint8Array(await f.arrayBuffer()) };
-}

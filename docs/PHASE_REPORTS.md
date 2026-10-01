@@ -100,3 +100,22 @@ sem vulnerabilidades (override de `uuid` para corrigir aviso do exceljs).
 configurar em ambientes reais.
 **DÉBITOS TÉCNICOS**: ver `BACKLOG.md` → "Débitos técnicos identificados".
 **PRÓXIMA ETAPA**: validação com contratos e exportações reais (MVP 0/concierge) e extração com Claude real.
+
+---
+
+## Etapa de preparação para validação real (2026-10-01, repositório `Ba4ldur/revenue`)
+**IMPLEMENTADO**: upload direto ao Storage por URL assinada com intenção HMAC e revalidação do conteúdo
+(ADR-032); validação de ambiente no boot e `check:env` (ADR-033); provedor de teste restrito à stack local
+(ADR-034); rejeição de precisão excessiva em entradas (ADR-035); fronteira de erro global; script
+`validate:extraction` para testar o provedor real em PDF real sem gravar; ponto de injeção de `fetch` no
+provider Anthropic (somente testes); docs `PRODUCTION.md`, `VALIDATION_RUNBOOK.md`, `FINANCIAL_POLICIES.md`.
+**PENDENTE**: extração com Claude real (sem `ANTHROPIC_API_KEY` no ambiente); leitura do documento oficial do
+CNPJ alfanumérico (gov.br bloqueado pela rede do ambiente); confirmação contábil do arredondamento.
+**TESTES EXECUTADOS**: typecheck; 85 unitários; 46 integração (inclui 7 de upload assinado contra o Storage
+real); build; E2E 1/1 (upload direto pela interface); boot recusado com provedor de teste não autorizado.
+**DECISÕES TOMADAS**: ADR-032 a 035.
+**RISCOS IDENTIFICADOS**: extração e processamento de import síncronos na requisição (tempo máximo da
+função); objetos órfãos de uploads abandonados; cláusulas contratuais de arredondamento de quantidade não
+suportadas pelo motor.
+**DÉBITOS TÉCNICOS**: ver BACKLOG (limpeza de órfãos, fila de jobs, revogar match, anular import).
+**PRÓXIMA ETAPA**: teste real ponta a ponta conforme `VALIDATION_RUNBOOK.md`.

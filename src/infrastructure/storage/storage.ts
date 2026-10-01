@@ -33,3 +33,16 @@ export async function signedUrl(bucket: Bucket, path: string, seconds = 60, down
   if (error || !data) throw new Error(`falha ao assinar URL: ${error?.message ?? ""}`);
   return data.signedUrl;
 }
+
+/** URL assinada para upload direto do navegador ao bucket privado (sem passar pela função serverless). */
+export async function createSignedUpload(bucket: Bucket, path: string): Promise<{ signedUrl: string; token: string; path: string }> {
+  const { data, error } = await client().storage.from(bucket).createSignedUploadUrl(path);
+  if (error || !data) throw new Error(`falha ao assinar upload: ${error?.message ?? ""}`);
+  return { signedUrl: data.signedUrl, token: data.token, path: data.path };
+}
+
+/** Remoção de objeto não registrado (upload rejeitado, duplicado ou falha de registro). Melhor esforço. */
+export async function removeObject(bucket: Bucket, path: string): Promise<void> {
+  const { error } = await client().storage.from(bucket).remove([path]);
+  if (error) throw new Error(`falha ao remover objeto: ${error.message}`);
+}

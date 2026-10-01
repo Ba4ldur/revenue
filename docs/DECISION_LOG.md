@@ -32,7 +32,7 @@ Todas com data 2026-09-30 e status **Aceita** salvo indicação. Decisões marca
 - **Alternativas**: inteiros em centavos (perde escala de preço unitário de 6 casas).
 - **Consequências**: nenhum `parseFloat/Number()` em domínio (verificado por teste).
 
-### ADR-003 · Arredondamento — **Requer confirmação (contador)**
+### ADR-003 · Arredondamento — **Requer confirmação (contador)** · comportamento detalhado em `docs/FINANCIAL_POLICIES.md`
 - **Decisão**: ROUND_HALF_UP, escala 2, somente no valor final de cada componente monetário.
   Quantidades/excedentes sem arredondamento. Totais = soma exata de componentes.
 - **Justificativa**: arredondamento comercial usual; arredondar só uma vez evita acúmulo.
@@ -212,3 +212,29 @@ Todas com data 2026-09-30 e status **Aceita** salvo indicação. Decisões marca
   raiz; fotos, kit `.claude` e demais arquivos do repositório anterior não foram trazidos.
 - **Consequências**: deploy na Vercel sem Root Directory customizado. Referências a
   `revenue-intelligence/` em documentos anteriores a esta data são históricas.
+
+### ADR-032 · Upload direto ao Storage com URL assinada
+- **Data**: 2026-10-01 · **Status**: Aceita · complementa o ADR-023.
+- **Problema**: arquivos passavam pelo corpo de Server Actions (limite da plataforma serverless menor que 20 MB).
+- **Decisão**: o servidor emite intenção assinada (HMAC com `UPLOAD_SIGNING_SECRET`, validade de 15 min,
+  ligada a organização, usuário, tipo, destino e path) + URL assinada do Supabase Storage; o navegador envia
+  ao bucket privado; o servidor baixa o objeto e **revalida o conteúdo real** (magic bytes, tamanho, SHA-256)
+  antes de registrar. Conteúdo inválido ou duplicado é removido do bucket. O limite de 1 MB das Server
+  Actions volta ao padrão.
+- **Consequências**: objetos de uploads abandonados ficam órfãos até limpeza (débito P2).
+
+### ADR-033 · Validação de ambiente no boot
+- **Decisão**: `src/lib/env.ts` valida variáveis obrigatórias, segredos com prefixo `NEXT_PUBLIC_`, service
+  role na chave pública, https e segredo de upload em produção; `src/instrumentation.ts` impede o boot em
+  produção com configuração inválida. `npm run check:env` faz a mesma checagem offline.
+
+### ADR-034 · Provedor de teste restrito à stack local
+- **Decisão**: `AI_PROVIDER=deterministic-test` só é aceito quando Supabase **e** Postgres estão em loopback e
+  fora da Vercel; em `next start` local exige ainda `ALLOW_TEST_PROVIDER=1`. Em qualquer outro cenário (inclusive
+  desenvolvimento apontando para projeto real) é recusado na fábrica e no boot.
+- **Justificativa**: o dublê gera regras propostas por regex; em dados reais seria evidência falsa.
+
+### ADR-035 · Entradas com precisão excessiva são rejeitadas, nunca arredondadas
+- **Decisão**: regras manuais com mais casas que a coluna suporta e limites de materialidade com precisão
+  excessiva passam a ser rejeitados (antes, o `numeric` do banco ou `toFixed` arredondariam em silêncio).
+  Não altera nenhum cálculo do motor. Políticas descritas em `docs/FINANCIAL_POLICIES.md`.

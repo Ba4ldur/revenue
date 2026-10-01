@@ -2,25 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { decideEntityMatch, previewImport, processImport, uploadImport } from "@/application/imports/imports";
+import { decideEntityMatch, previewImport, processImport } from "@/application/imports/imports";
 import { invalid } from "@/application/errors";
 import { parseCompetence } from "@/domain/competence";
 import { MAPPABLE_FIELDS } from "@/domain/imports/normalization";
 import { requireOrg } from "@/lib/session";
-import { fileFrom, runAction, str, type ActionState } from "@/lib/actions";
-
-export async function uploadImportAction(_: ActionState, fd: FormData): Promise<ActionState> {
-  const ctx = await requireOrg();
-  let target = "";
-  const res = await runAction(async () => {
-    const file = await fileFrom(fd, "file");
-    if (!file) throw invalid("Selecione um arquivo CSV ou XLSX");
-    const r = await uploadImport(ctx, { type: (str(fd, "type") ?? "OPERATIONAL") as "OPERATIONAL" | "BILLING", file, sourceSystem: str(fd, "sourceSystem") });
-    target = r.status === "DUPLICATE" ? `/imports/${r.importId}?dup=1` : `/imports/${r.importId}`;
-  });
-  if (res.error) return res;
-  redirect(target);
-}
+import { runAction, str, type ActionState } from "@/lib/actions";
 
 function mappingFrom(fd: FormData) {
   const mapping: Record<string, string> = {};

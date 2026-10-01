@@ -37,7 +37,10 @@ export interface UploadResult {
   rowCount: number;
 }
 
-export async function uploadImport(ctx: OrgContext, input: { type: ImportType; file: UploadedFile; sourceSystem?: string | null }): Promise<UploadResult> {
+export async function uploadImport(
+  ctx: OrgContext,
+  input: { type: ImportType; file: UploadedFile; sourceSystem?: string | null; stored?: { path: string; id: string } },
+): Promise<UploadResult> {
   requirePermission(ctx, "imports.write");
   if (input.type !== "OPERATIONAL" && input.type !== "BILLING") throw invalid("Tipo de importação inválido");
   const file = validateUpload(input.file, ["csv", "xlsx"]);
@@ -64,9 +67,10 @@ export async function uploadImport(ctx: OrgContext, input: { type: ImportType; f
     return { importId: id, status: "DUPLICATE", duplicateOf: original.id as string, rowCount: 0 };
   }
 
-  const id = randomUUID();
-  const path = `${ctx.orgId}/${id}.${ext}`;
-  await putObject("imports", path, file.bytes, file.mimeType);
+  const id = input.stored?.id ?? randomUUID();
+  const path = input.stored?.path ?? `${ctx.orgId}/${id}.${ext}`;
+  if (path !== `${ctx.orgId}/${id}.${ext}`) throw invalid("Caminho de armazenamento inválido");
+  if (!input.stored) await putObject("imports", path, file.bytes, file.mimeType);
 
   let parsed: Awaited<ReturnType<typeof parseImportFile>> | null = null;
   let parseError: string | null = null;

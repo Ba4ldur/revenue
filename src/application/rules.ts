@@ -197,6 +197,8 @@ function ruleValues(f: z.infer<typeof RuleFields>) {
     if (!d.ok) throw invalid(`Valor: ${d.error}`);
     if (d.value.isNegative()) throw invalid("Valor não pode ser negativo");
     if (MONEY_RULE_TYPES.has(f.ruleType) && d.value.decimalPlaces() > 2) throw invalid("Valor monetário com mais de 2 casas");
+    // numeric(18,6) arredondaria em silêncio; o valor informado é rejeitado em vez de alterado.
+    if (d.value.decimalPlaces() > (f.ruleType === "DISCOUNT_PERCENTAGE" ? 4 : 6)) throw invalid("Valor com casas decimais além da precisão suportada (6 casas; percentual 4)");
     numeric = f.ruleType === "DISCOUNT_PERCENTAGE" ? d.value.dividedBy(100).toFixed() : d.value.toFixed();
   }
   if ((MONEY_RULE_TYPES.has(f.ruleType) || UNIT_RULE_TYPES.has(f.ruleType)) && numeric === null) throw invalid("Valor obrigatório para este tipo de regra");

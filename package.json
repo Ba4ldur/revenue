@@ -16,7 +16,9 @@
     "test:all": "vitest run",
     "test:e2e": "next build && playwright test",
     "db:reset": "supabase db reset",
-    "seed:demo": "tsx --conditions=react-server scripts/seed-demo.ts"
+    "seed:demo": "tsx --conditions=react-server scripts/seed-demo.ts",
+    "check:env": "tsx scripts/check-env.ts",
+    "validate:extraction": "tsx --conditions=react-server scripts/validate-extraction.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.131.0",

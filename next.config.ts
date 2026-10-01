@@ -20,11 +20,8 @@ const csp = [
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   serverExternalPackages: ["postgres", "exceljs", "unpdf"],
-  experimental: {
-    // Uploads de contrato (até 20 MB) + overhead multipart. Na Vercel o limite da plataforma é menor:
-    // ver docs/PHASE_REPORTS.md (débito técnico: upload direto com URL assinada).
-    serverActions: { bodySizeLimit: "21mb" },
-  },
+  // Arquivos não passam por Server Actions: upload direto ao Storage com URL assinada
+  // (application/uploads.ts). O limite padrão de 1 MB do corpo das actions permanece.
   async headers() {
     return [
       {

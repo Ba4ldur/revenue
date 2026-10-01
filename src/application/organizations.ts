@@ -2,7 +2,7 @@ import { z } from "zod";
 import { isValidCnpj, normalizeCnpj } from "@/domain/cnpj";
 import { setAuditIntent, withUserScope } from "@/infrastructure/db/client";
 import { requirePermission, systemTx, userTx, type OrgContext, type Role } from "./context";
-import { fromDbError, invalid } from "./errors";
+import { AppError, fromDbError, invalid } from "./errors";
 import { validatePolicy, type MaterialityPolicy } from "@/domain/reconciliation/materiality";
 import { dec } from "@/domain/money/decimal";
 
@@ -153,9 +153,15 @@ export async function setMaterialityPolicy(ctx: OrgContext, input: unknown): Pro
   let abs: string | null = null;
   let pct: string | null = null;
   try {
-    abs = toDec(p.data.absoluteThreshold) === null ? null : dec(toDec(p.data.absoluteThreshold)!).toFixed(2);
-    pct = toDec(p.data.percentagePoints) === null ? null : dec(toDec(p.data.percentagePoints)!).dividedBy(100).toFixed(8);
-  } catch {
+    const a = toDec(p.data.absoluteThreshold);
+    const b = toDec(p.data.percentagePoints);
+    // Sem arredondamento silencioso: precisão além da suportada é rejeitada.
+    if (a !== null && dec(a).decimalPlaces() > 2) throw invalid("Limite absoluto com mais de 2 casas decimais");
+    if (b !== null && dec(b).decimalPlaces() > 6) throw invalid("Limite percentual com mais de 6 casas decimais");
+    abs = a === null ? null : dec(a).toFixed(2);
+    pct = b === null ? null : dec(b).dividedBy(100).toFixed(8);
+  } catch (e) {
+    if (e instanceof AppError) throw e;
     throw invalid("Valores numéricos inválidos");
   }
   const policy = {

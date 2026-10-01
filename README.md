@@ -10,6 +10,9 @@ Fonte de verdade: [`MASTER_SPEC_v1.0.md`](MASTER_SPEC_v1.0.md).
 | `docs/02_IMPLEMENTATION_PLAN.md` | Estado do repositório e plano |
 | `docs/DECISION_LOG.md` | ADRs |
 | `docs/PHASE_REPORTS.md` | Relatórios de fase (formato PHASE_RETURN_FORMAT) |
+| `docs/PRODUCTION.md` | Configuração de produção (Supabase, Vercel, variáveis, IA, LGPD) |
+| `docs/VALIDATION_RUNBOOK.md` | Roteiro do primeiro teste real e arquivos necessários |
+| `docs/FINANCIAL_POLICIES.md` | Arredondamento e CNPJ: comportamento atual e o que falta verificar |
 | `BACKLOG.md` / `ROADMAP.md` | Trabalho pendente / fora do MVP |
 
 ## Arquitetura em uma linha
@@ -25,13 +28,16 @@ npm install
 supabase start                         # Postgres + Auth + Storage locais; aplica supabase/migrations
 cp .env.example .env.local             # preencha com os valores de `supabase status -o env`
 npm run seed:demo                      # opcional: demo@acme.test / DemoAcme2026
+npm run check:env                      # valida a configuração sem imprimir valores
 npm run dev                            # http://localhost:3000
 ```
 
 Variáveis: ver `.env.example`. `DATABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY` são **somente servidor**.
 Extração por IA: `AI_PROVIDER=anthropic` + `ANTHROPIC_API_KEY` (modelo em `AI_EXTRACTION_MODEL`).
 Sem `AI_PROVIDER`, a extração fica desabilitada e as regras são cadastradas manualmente com trecho
-do contrato. `AI_PROVIDER=deterministic-test` é um dublê de teste (regex, não é IA), bloqueado em produção.
+do contrato. `AI_PROVIDER=deterministic-test` é um dublê de teste (regex, não é IA), aceito só com Supabase e
+Postgres locais. Validar a extração real sem gravar nada: `npm run validate:extraction -- contrato.pdf`.
+Uploads vão direto do navegador ao Storage privado por URL assinada e são revalidados no servidor.
 
 ## Testes
 ```bash

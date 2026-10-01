@@ -20,7 +20,7 @@ export interface ValidatedFile {
   bytes: Uint8Array;
 }
 
-const KINDS = {
+export const UPLOAD_KINDS = {
   pdf: { mimes: ["application/pdf"], max: 20 * 1024 * 1024, canonical: "application/pdf" },
   csv: { mimes: ["text/csv", "application/vnd.ms-excel", "text/plain", "application/csv"], max: 10 * 1024 * 1024, canonical: "text/csv" },
   xlsx: { mimes: ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"], max: 10 * 1024 * 1024, canonical: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" },
@@ -36,11 +36,11 @@ export function sanitizeFileName(name: string): string {
   return (clean || "arquivo").slice(0, 200);
 }
 
-export function validateUpload(file: UploadedFile, allowed: Array<keyof typeof KINDS>): ValidatedFile {
+export function validateUpload(file: UploadedFile, allowed: Array<keyof typeof UPLOAD_KINDS>): ValidatedFile {
   const fileName = sanitizeFileName(file.name);
-  const ext = fileName.toLowerCase().split(".").pop() as keyof typeof KINDS | undefined;
+  const ext = fileName.toLowerCase().split(".").pop() as keyof typeof UPLOAD_KINDS | undefined;
   if (!ext || !allowed.includes(ext)) throw invalid(`Extensão não permitida. Aceitos: ${allowed.map((a) => "." + a).join(", ")}`);
-  const kind = KINDS[ext];
+  const kind = UPLOAD_KINDS[ext];
   if (file.bytes.length === 0) throw invalid("Arquivo vazio");
   if (file.bytes.length > kind.max) throw invalid(`Arquivo excede ${kind.max / 1024 / 1024} MB`);
   if (file.type && !(kind.mimes as readonly string[]).includes(file.type)) throw invalid(`Tipo de arquivo (${file.type}) não corresponde à extensão .${ext}`);
@@ -51,4 +51,19 @@ export function validateUpload(file: UploadedFile, allowed: Array<keyof typeof K
     if (head.includes(0)) throw invalid("CSV contém bytes binários");
   }
   return { fileName, extension: ext, mimeType: kind.canonical, size: file.bytes.length, sha256: sha256Hex(file.bytes), bytes: file.bytes };
+}
+
+/**
+ * Pré-validação do que o navegador declara (nome, tamanho, MIME) antes de emitir a URL de upload.
+ * Não substitui validateUpload: o conteúdo real é revalidado (magic bytes, tamanho, hash) após o upload.
+ */
+export function validateDeclared(fileName: string, size: number, mime: string, allowed: Array<keyof typeof UPLOAD_KINDS>) {
+  const name = sanitizeFileName(fileName);
+  const ext = name.toLowerCase().split(".").pop() as keyof typeof UPLOAD_KINDS | undefined;
+  if (!ext || !allowed.includes(ext)) throw invalid(`Extensão não permitida. Aceitos: ${allowed.map((a) => "." + a).join(", ")}`);
+  const kind = UPLOAD_KINDS[ext];
+  if (!Number.isSafeInteger(size) || size <= 0) throw invalid("Arquivo vazio");
+  if (size > kind.max) throw invalid(`Arquivo excede ${kind.max / 1024 / 1024} MB`);
+  if (mime && !(kind.mimes as readonly string[]).includes(mime)) throw invalid(`Tipo de arquivo (${mime}) não corresponde à extensão .${ext}`);
+  return { fileName: name, extension: ext, canonicalMime: kind.canonical, max: kind.max };
 }

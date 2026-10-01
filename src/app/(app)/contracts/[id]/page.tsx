@@ -10,7 +10,9 @@ import { ActionForm } from "@/components/forms";
 import {
   Comp, DateBR, DateTime, Empty, Field, KeyValue, LinkButton, Money, Notice, PageHeader, Qty, Section, StatusBadge, Table, Td, Th, inputCls,
 } from "@/components/ui";
-import { amendmentAction, reprocessContractAction, runCalculationAction, uploadDocumentAction } from "../actions";
+import { amendmentAction, reprocessContractAction, runCalculationAction } from "../actions";
+import { DirectUploadForm } from "@/components/direct-upload";
+import { createUploadIntentAction, finalizeUploadAction } from "../../uploads/actions";
 
 const DOC_LABELS: Record<string, string> = { CONTRACT: "Contrato", AMENDMENT: "Aditivo", PROPOSAL: "Proposta", PRICE_TABLE: "Tabela de preços", SLA: "SLA", OTHER: "Outro" };
 const SOURCE_LABELS: Record<string, string> = { ORIGINAL: "Original", AMENDMENT: "Aditivo", CORRECTION: "Correção" };
@@ -92,20 +94,19 @@ export default async function ContractPage({ params }: { params: Promise<{ id: s
         )}
         {can(ctx, "documents.write") && (
           <div className="mt-4 max-w-2xl">
-            <ActionForm action={uploadDocumentAction.bind(null, id)} submitLabel="Enviar PDF" pendingLabel="Enviando e extraindo texto…" resetOnSuccess>
-              <div className="grid gap-3 sm:grid-cols-3">
-                <Field label="Arquivo PDF (até 20 MB)"><input name="file" type="file" accept="application/pdf,.pdf" required className="text-sm" /></Field>
-                <Field label="Tipo">
-                  <select name="documentType" className={inputCls}>{DOCUMENT_TYPES.map((t) => <option key={t} value={t}>{DOC_LABELS[t]}</option>)}</select>
-                </Field>
-                <Field label="Versão">
-                  <select name="versionId" defaultValue={openVersion?.id ?? ""} className={inputCls}>
-                    <option value="">Sem versão</option>
-                    {versions.filter((v) => v.status !== "SUPERSEDED").map((v) => <option key={v.id} value={v.id}>v{v.versionNumber}</option>)}
-                  </select>
-                </Field>
-              </div>
-            </ActionForm>
+            <DirectUploadForm kind="CONTRACT_DOCUMENT" extra={{ contractId: id }} submitLabel="Enviar PDF" accept="application/pdf,.pdf"
+              createIntent={createUploadIntentAction} finalize={finalizeUploadAction}>
+              <Field label="Tipo">
+                <select name="documentType" className={inputCls}>{DOCUMENT_TYPES.map((t) => <option key={t} value={t}>{DOC_LABELS[t]}</option>)}</select>
+              </Field>
+              <Field label="Versão">
+                <select name="versionId" defaultValue={openVersion?.id ?? ""} className={inputCls}>
+                  <option value="">Sem versão</option>
+                  {versions.filter((v) => v.status !== "SUPERSEDED").map((v) => <option key={v.id} value={v.id}>v{v.versionNumber}</option>)}
+                </select>
+              </Field>
+            </DirectUploadForm>
+            <p className="mt-1 text-xs text-ink-3">PDF até 20 MB, enviado diretamente ao armazenamento privado e revalidado no servidor.</p>
           </div>
         )}
       </Section>

@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { extractText, getDocumentProxy } from "unpdf";
 import { sha256Hex } from "@/domain/hashing";
 import { setAuditIntent } from "@/infrastructure/db/client";
-import { putObject, signedUrl } from "@/infrastructure/storage/storage";
+import { putObject, removeObject, signedUrl } from "@/infrastructure/storage/storage";
 import { assertUuid, requirePermission, userTx, type OrgContext } from "./context";
 import { AppError, fromDbError, invalid, notFound } from "./errors";
 import { validateUpload, type UploadedFile } from "./files";
@@ -53,7 +53,14 @@ export async function extractPdfPages(bytes: Uint8Array): Promise<{ pages: strin
 
 export async function uploadContractDocument(
   ctx: OrgContext,
-  input: { contractId: string; contractVersionId: string | null; documentType: string; file: UploadedFile },
+  input: {
+    contractId: string;
+    contractVersionId: string | null;
+    documentType: string;
+    file: UploadedFile;
+    /** Objeto já enviado ao Storage por URL assinada (ver application/uploads.ts). */
+    stored?: { path: string; id: string };
+  },
 ): Promise<{ documentId: string; duplicate: boolean }> {
   requirePermission(ctx, "documents.write");
   assertUuid(input.contractId, "contrato");
@@ -70,9 +77,10 @@ export async function uploadContractDocument(
   });
   if (existing) return { documentId: existing, duplicate: true };
 
-  const id = randomUUID();
-  const path = `${ctx.orgId}/${id}.pdf`;
-  await putObject("contract-documents", path, file.bytes, file.mimeType);
+  const id = input.stored?.id ?? randomUUID();
+  const path = input.stored?.path ?? `${ctx.orgId}/${id}.pdf`;
+  if (path !== `${ctx.orgId}/${id}.pdf`) throw invalid("Caminho de armazenamento inválido");
+  if (!input.stored) await putObject("contract-documents", path, file.bytes, file.mimeType);
   const { pages, error } = await extractPdfPages(file.bytes);
   const hasText = pages.some((p) => p.trim().length > 0);
   const textStatus = error ? "FAILED" : hasText ? "COMPLETED" : "NO_TEXT";
@@ -95,6 +103,8 @@ export async function uploadContractDocument(
       }
     });
   } catch (e) {
+    // Registro falhou: o arquivo não pode ficar órfão no bucket (só remove o que esta chamada enviou).
+    if (!input.stored) await removeObject("contract-documents", path).catch(() => undefined);
     throw fromDbError(e);
   }
   return { documentId: id, duplicate: false };

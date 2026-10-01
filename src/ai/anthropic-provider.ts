@@ -20,8 +20,9 @@ export class AnthropicExtractionProvider implements ContractExtractionProvider {
   readonly name = "anthropic";
   private readonly client: Anthropic;
 
-  constructor(readonly model: string, apiKey: string) {
-    this.client = new Anthropic({ apiKey, timeout: 120_000, maxRetries: 2 });
+  /** `clientOptions` existe apenas para testes (ex.: fetch simulado); produção usa os padrões. */
+  constructor(readonly model: string, apiKey: string, clientOptions: Partial<ConstructorParameters<typeof Anthropic>[0]> = {}) {
+    this.client = new Anthropic({ apiKey, timeout: 120_000, maxRetries: 2, ...clientOptions });
   }
 
   async extract(pages: DocumentPage[]): Promise<ExtractionResponse> {

@@ -146,3 +146,16 @@ export function validateExtraction(output: unknown, pageCount: number): { propos
   }
   return { proposals, discarded };
 }
+
+/**
+ * Espelho em TypeScript de app.normalize_excerpt (SQL) — usado só para pré-visualização em scripts.
+ * A verificação autoritativa é a do banco (trigger de contract_rules).
+ */
+export function normalizeExcerpt(s: string): string {
+  return s.toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+export function excerptFoundOnPage(excerpt: string, pageText: string): boolean {
+  const needle = normalizeExcerpt(excerpt);
+  return needle.length >= 3 && normalizeExcerpt(pageText).includes(needle);
+}

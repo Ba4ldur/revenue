@@ -3,14 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAmendment, createContract } from "@/application/contracts";
-import { uploadContractDocument } from "@/application/documents";
 import { runRevenueAssurance } from "@/application/calculations";
 import { createAndRunReprocessing } from "@/application/reprocessing";
 import { invalid } from "@/application/errors";
 import { parseCompetence } from "@/domain/competence";
 import { formatBRL } from "@/domain/money/decimal";
 import { requireOrg } from "@/lib/session";
-import { fileFrom, runAction, str, type ActionState } from "@/lib/actions";
+import { runAction, str, type ActionState } from "@/lib/actions";
 
 function competence(fd: FormData, key: string) {
   const c = parseCompetence(str(fd, key) ?? "");
@@ -30,17 +29,6 @@ export async function createContractAction(_: ActionState, fd: FormData): Promis
   });
   if (res.error) return res;
   redirect(`/contracts/${id}`);
-}
-
-export async function uploadDocumentAction(contractId: string, _: ActionState, fd: FormData): Promise<ActionState> {
-  const ctx = await requireOrg();
-  return runAction(async () => {
-    const file = await fileFrom(fd, "file");
-    if (!file) throw invalid("Selecione um arquivo PDF");
-    const r = await uploadContractDocument(ctx, { contractId, contractVersionId: str(fd, "versionId"), documentType: str(fd, "documentType") ?? "CONTRACT", file });
-    revalidatePath(`/contracts/${contractId}`);
-    return { ok: true, message: r.duplicate ? "Este arquivo já estava anexado ao contrato (mesmo hash)." : "Documento armazenado com texto extraído por página." };
-  });
 }
 
 export async function runCalculationAction(contractId: string, _: ActionState, fd: FormData): Promise<ActionState> {
